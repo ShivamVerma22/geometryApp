@@ -193,7 +193,7 @@ export default function App() {
         <h3 className="error">{errormessage}</h3>
         {currentSelection.value === "1" ? (
           <>
-            <h3 class="heading">
+            <h3 className="heading">
               Enter measure of 3 angles and see whether they form a perfect
               triangle or not?
             </h3>
@@ -271,7 +271,7 @@ export default function App() {
             ) : (
               ""
             )}
-            <h2 class="message">{triangleMessage}</h2>
+            <h2 className="message">{triangleMessage}</h2>
             <button
               className="btn btn--submit"
               onClick={() => randomAngleGenerator()}
@@ -293,6 +293,7 @@ export default function App() {
                 <input
                   className="input"
                   placeholder="Third Angle"
+                  value={userthirdAngle}
                   type="text"
                   onChange={inputThirdAngle}
                 />
@@ -326,6 +327,7 @@ export default function App() {
                   type="text"
                   className="input"
                   placeholder="Third Angle"
+                  value={userthirdAngle}
                   onChange={inputThirdAngle}
                 />
                 <button className="btn btn--clear" onClick={checkThirdAngle}>
@@ -358,6 +360,7 @@ export default function App() {
                   type="text"
                   className="input"
                   placeholder="Third Angle"
+                  value={userthirdAngle}
                   onChange={inputThirdAngle}
                 />
                 <button className="btn btn--clear" onClick={checkThirdAngle}>
