@@ -4,7 +4,7 @@ const quizSections = [
     value: "1"
   },
   {
-    message: "Which Triangle is this?",
+    message: "Which triangle is this?",
     value: "2"
   },
   {
@@ -20,11 +20,11 @@ const quizSections = [
     value: "5"
   },
   {
-    message: "Pythagoras ki Maut",
+    message: "Digital Pythagoras",
     value: "6"  
   }, 
   {
-    message: "Know your Area",
+    message: "Find the area",
     value: "7"  
   }
 ]

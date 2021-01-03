@@ -5,14 +5,14 @@ import quizSections from "./quizSections";
 export default function App() {
   const [angles, setInput] = useState([]);
   const [message, setMessage] = useState("");
-  const [currentSelection, setSelection] = useState("1");
+  const [currentSelection, setSelection] = useState(quizSections[0]);
   const [angleString, setAngleString] = useState("");
   const [triangle, setTriangle] = useState("");
   const [triangleMessage, setTriangleMessage] = useState("");
   const [thirdAngle, setThirdAngle] = useState(0);
   const [userthirdAngle, setUserThirdAngle] = useState("");
   const [temp, setTemp] = useState("");
-
+  const [errormessage, setErrormessage] = useState("");
 
   function changeSection(value) {
     setInput([]);
@@ -23,23 +23,37 @@ export default function App() {
     setUserThirdAngle("");
     setThirdAngle("");
     setSelection(value);
+    setErrormessage("");
   }
 
   function handleInput(e) {
-    setInput((angles) => [...angles, Number(e.target.value)]);
-    setTemp("");
+    if (e.target.value !== "") {
+      setTemp("");
+      if (!isNaN(e.target.value)) {
+        setInput((angles) => [...angles, Number(e.target.value)]);
+        setErrormessage("");
+      } else {
+        setErrormessage(`Input should be only number`);
+      }
+    } else {
+      setErrormessage(`Input cannot be empty`);
+    }
   }
 
   function handleChange(e) {
-    setTemp(e.target.value)
+    setTemp(e.target.value);
   }
 
   function handleClick() {
-    let total = angles.reduce((total, a) => total + a);
-    if (total === 180) {
-      setMessage("You have correctly entered angles of a triangle");
+    if (angles.length > 0) {
+      let total = angles.reduce((total, a) => total + a);
+      if (total === 180) {
+        setMessage("You have correctly entered angles of a triangle");
+      } else {
+        setMessage("The angles you entered does not make a triangle");
+      }
     } else {
-      setMessage("The angles you entered does not make a triangle");
+      setErrormessage("Inputs not given");
     }
   }
 
@@ -67,9 +81,9 @@ export default function App() {
 
   function handleTriangleType(e) {
     if (e.target.id === triangle) {
-      setTriangleMessage(`${e.target.id} angled triangle is Correct answer 🤓`);
+      setTriangleMessage(`${e.target.id} angled triangle is correct answer`);
     } else {
-      setTriangleMessage(`${e.target.id} angled triangle is Wrong answer 🙁`);
+      setTriangleMessage(`${e.target.id} angled triangle is wrong answer`);
     }
   }
 
@@ -89,21 +103,31 @@ export default function App() {
     setThirdAngle(three);
     setTriangleMessage("");
     setUserThirdAngle("");
+    setErrormessage("");
   }
 
-  function inputThirdAngle(e){
-    setUserThirdAngle(Number(e.target.value));
+  function inputThirdAngle(e) {
+    setUserThirdAngle(e.target.value);
   }
 
-  function checkThirdAngle(){
-    if(thirdAngle === Number(userthirdAngle)) {
-      setTriangleMessage("You are right")
+  function checkThirdAngle() {
+    if (userthirdAngle !== "") {
+      if (!isNaN(userthirdAngle)) {
+        setErrormessage("")
+        if (thirdAngle === Number(userthirdAngle)) {
+          setTriangleMessage("You are right");
+        } else {
+          setTriangleMessage("You entered wrong angle");
+        }
+      } else {
+        setErrormessage("Input should be only number");
+      }
     } else {
-      setTriangleMessage("You entered wrong angle");
+      setErrormessage("Input cannot be empty");
     }
   }
 
-  function isoscelesGenerator(){
+  function isoscelesGenerator() {
     let one = Math.floor(Math.random() * 90) + 1;
     let sum = 180 - one;
     let each = sum / 2;
@@ -113,7 +137,7 @@ export default function App() {
     setUserThirdAngle("");
   }
 
-  function equilateralGenerator(){
+  function equilateralGenerator() {
     let each = 180 / 3;
     setAngleString(`${each}, ${each}`);
     setThirdAngle(each);
@@ -122,175 +146,303 @@ export default function App() {
   }
 
   function calculateHypotenuse() {
-    let hyp = Math.sqrt((angles[0]*angles[0]) + (angles[1] * angles[1]));
-    setTriangleMessage(`Hypotenuse: ${hyp}`)
+    if(angles.length > 0){
+      let hyp = Math.sqrt(angles[0] * angles[0] + angles[1] * angles[1]);
+      setTriangleMessage(`Hypotenuse: ${hyp}`);
+    } else{
+      setErrormessage("Inputs not given")
+    }
   }
 
   function calculateArea() {
-    let area = 0.5 * angles[0] * angles[1];
-    setTriangleMessage(`Area of Triangle is: ${area} sq units`)
+    if(angles.length > 0){
+      let area = 0.5 * angles[0] * angles[1];
+      setTriangleMessage(`Area of Triangle is: ${area} sq units`);
+    } else{
+      setErrormessage("Inputs not given");
+    }
   }
 
   function clear() {
     setTemp("");
     setInput([]);
     setTriangleMessage("");
+    setErrormessage("");
   }
 
   return (
-    <div className="App">
-      <h1>Fun with Geometry</h1>
-      <h2>An interactive way to learn geometry</h2>
-      {quizSections.map((section) => {
-        return (
-          <button
-            key={section.value}
-            style={{ display: "block", margin: "10px auto" }}
-            onClick={() => changeSection(section.value)}
-          >
-            {section.message}
-          </button>
-        );
-      })}
-      {currentSelection === "1" ? (
-        <>
-          <input 
-            type="text" 
-            onBlur={handleInput} 
-            onChange={handleChange}
-            value={angles[0] ? angles[0] : temp}
-          />
-          <input 
-            type="text" 
-            onBlur={handleInput} 
-            onChange={handleChange}
-            value={angles.length === 0 ? "" : angles[1] ? angles[1] : temp}
-          />
-          <input 
-            type="text" 
-            onBlur={handleInput} 
-            onChange={handleChange}
-            value={angles.length <= 1 ? "" : angles[2] ? angles[2] : temp}
-          />
-          <button onClick={handleClick}>Check</button>
-          <h2>{message}</h2>
-          <button onClick={clear}>Clear</button>
-        </>
-      ) : (
-        ""
-      )}
-      {currentSelection === "2" ? (
-        <>
-          <h4>What will be the type of triangle having these angles?</h4>
-          <button onClick={() => randomAngleGenerator()}>Play</button>
-          <h3>{angleString}</h3>
-          {angleString ? (
-            <>
-              <button
-                id="acute"
-                onClick={handleTriangleType}
-                disabled={setActiveChoice()}
-              >
-                Acute Angled Triangle
-              </button>
-              <button
-                id="right"
-                onClick={handleTriangleType}
-                disabled={setActiveChoice()}
-              >
-                Right Angled Triangle
-              </button>
-              <button
-                id="obtuse"
-                onClick={handleTriangleType}
-                disabled={setActiveChoice()}
-              >
-                Obtuse Angled Triangle
-              </button>
-            </>
-          ) : (
-            ""
-          )}
-          <h2>{triangleMessage}</h2>
-        </>
-      ) : (
-        ""
-      )}
-      {currentSelection === "3" ? (
-        <>
-          <button onClick={() => guessThirdAngle()}>Play</button>
-          <h2>{angleString}</h2>
-          <input type="text" value={userthirdAngle} onChange={inputThirdAngle} />
-          <button onClick={checkThirdAngle}>Check</button>
-          <h3>{triangleMessage}</h3>
-        </>
-      ) : (
-        ""
-      )}
-      {
-        currentSelection === "4" ?
-        <>
-          <button onClick={isoscelesGenerator}>Play</button>
-          <h2>{angleString}</h2>
-          <input type="text" value={userthirdAngle} onChange={inputThirdAngle} />
-          <button onClick={checkThirdAngle}>Check</button>
-          <h3>{triangleMessage}</h3>
-        </> :
-        ""
-      }
-      {
-        currentSelection === "5" ?
-        <>
-          <button onClick={equilateralGenerator}>Play</button>
-          <h2>{angleString}</h2>
-          <input type="text" value={userthirdAngle} onChange={inputThirdAngle} />
-          <button onClick={checkThirdAngle}>Check</button>
-          <h3>{triangleMessage}</h3>
-        </> :
-        ""
-      }
-      {
-        currentSelection === "6" ? 
-        <>
-          <input 
-            placeholder={"Side A"} 
-            onBlur={handleInput} 
-            onChange={handleChange}
-            value={angles[0] ? angles[0] : temp}
-          />
-          <input 
-            placeholder={"Side B"} 
-            onBlur={handleInput} 
-            onChange={handleChange}
-            value={angles.length === 0 ? "" : angles[1] ? angles[1] : temp}
-          />
-          <button onClick={calculateHypotenuse}>Calculate Hypotenuse</button>
-          <h2>{triangleMessage}</h2>
-          <button onClick={clear}>Clear</button>
-        </> : 
-        ""
-      }
-       {
-        currentSelection === "7" ? 
-        <>
-          <input 
-            placeholder={"Base"} 
-            onBlur={handleInput} 
-            onChange={handleChange}
-            value={angles[0] ? angles[0] : temp}
-          />
-          <input 
-            placeholder={"Height"} 
-            onBlur={handleInput} 
-            onChange={handleChange}
-            value={angles.length === 0 ? "" : angles[1] ? angles[1] : temp}
-          />
-          <button onClick={calculateArea}>Calculate Area</button>
-          <h2>{triangleMessage}</h2>
-          <button onClick={clear}>Clear</button>
-        </> : 
-        ""
-      }
+    <div className="content">
+      <h1>Fun Learning Triangles</h1>
+      <h2>An interactive fun way to learn about triangles.</h2>
+      <section className="quiz-section">
+        {quizSections.map((section) => {
+          return (
+            <button
+              className="quiz-section__btn"
+              key={section.value}
+              style={{ display: "block", margin: "10px auto" }}
+              onClick={() => changeSection(section)}
+            >
+              {section.message}
+            </button>
+          );
+        })}
+      </section>
+      <div className="playarea">
+        <h2 className="selected">{currentSelection.message}</h2>
+        <h3 className="error">{errormessage}</h3>
+        {currentSelection.value === "1" ? (
+          <>
+            <h3 class="heading">
+              Enter measure of 3 angles and see whether they form a perfect
+              triangle or not?
+            </h3>
+            <input
+              className="input"
+              disabled={angles[0] ? true : false}
+              type="text"
+              onBlur={handleInput}
+              onChange={handleChange}
+              placeholder="Angle A"
+              value={angles[0] ? angles[0] : temp}
+            />
+            <input
+              className="input"
+              disabled={angles[1] ? true : false}
+              type="text"
+              onBlur={handleInput}
+              onChange={handleChange}
+              placeholder="Angle B"
+              value={angles.length === 0 ? "" : angles[1] ? angles[1] : temp}
+            />
+            <input
+              className="input"
+              disabled={angles[2] ? true : false}
+              type="text"
+              onBlur={handleInput}
+              onChange={handleChange}
+              placeholder="Angle C"
+              value={angles.length <= 1 ? "" : angles[2] ? angles[2] : temp}
+            />
+            <h2 className="message">{message}</h2>
+            <button className="btn btn--submit" onClick={handleClick}>
+              Check
+            </button>
+            <button className="btn btn--clear" onClick={clear}>
+              Clear
+            </button>
+          </>
+        ) : (
+          ""
+        )}
+        {currentSelection.value === "2" ? (
+          <>
+            <h3 className="heading">
+              What will be the type of triangle having these angles?
+            </h3>
+            <h2>{angleString}</h2>
+            {angleString ? (
+              <>
+                <button
+                  className="btn btn--option"
+                  id="acute"
+                  onClick={handleTriangleType}
+                  disabled={setActiveChoice()}
+                >
+                  Acute Angled Triangle
+                </button>
+                <button
+                  className="btn btn--option"
+                  id="right"
+                  onClick={handleTriangleType}
+                  disabled={setActiveChoice()}
+                >
+                  Right Angled Triangle
+                </button>
+                <button
+                  className="btn btn--option"
+                  id="obtuse"
+                  onClick={handleTriangleType}
+                  disabled={setActiveChoice()}
+                >
+                  Obtuse Angled Triangle
+                </button>
+              </>
+            ) : (
+              ""
+            )}
+            <h2 class="message">{triangleMessage}</h2>
+            <button
+              className="btn btn--submit"
+              onClick={() => randomAngleGenerator()}
+            >
+              {angleString !== "" ? "Play Again" : "Play"}
+            </button>
+          </>
+        ) : (
+          ""
+        )}
+        {currentSelection.value === "3" ? (
+          <>
+            <h3 className="heading">
+              Given two angles. Guess the third one to form a perfect triangle
+            </h3>
+            <h2 className="heading">{angleString}</h2>
+            {angleString ? (
+              <>
+                <input
+                  className="input"
+                  placeholder="Third Angle"
+                  type="text"
+                  onChange={inputThirdAngle}
+                />
+                <button className="btn btn--clear" onClick={checkThirdAngle}>
+                  Check
+                </button>
+              </>
+            ) : (
+              ""
+            )}
+            <h3 className="message">{triangleMessage}</h3>
+            <button
+              className="btn btn--submit"
+              onClick={() => guessThirdAngle()}
+            >
+              {angleString !== "" ? "Play Again" : "Play"}
+            </button>
+          </>
+        ) : (
+          ""
+        )}
+        {currentSelection.value === "4" ? (
+          <>
+            <h3 className="heading">
+              Given two angles of an Isosceles Triangle. Guess the third one
+            </h3>
+            <h2 className="heading">{angleString}</h2>
+            {angleString ? (
+              <>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="Third Angle"
+                  onChange={inputThirdAngle}
+                />
+                <button className="btn btn--clear" onClick={checkThirdAngle}>
+                  Check
+                </button>
+              </>
+            ) : (
+              ""
+            )}
+            <h3 className="message">{triangleMessage}</h3>
+            <button
+              className="btn btn--submit"
+              onClick={() => isoscelesGenerator()}
+            >
+              {angleString !== "" ? "Play Again" : "Play"}
+            </button>
+          </>
+        ) : (
+          ""
+        )}
+        {currentSelection.value === "5" ? (
+          <>
+            <h3 className="heading">
+              Given two angles of an Equilateral Triangle. Guess the third one
+            </h3>
+            <h2 className="heading">{angleString}</h2>
+            {angleString ? (
+              <>
+                <input
+                  type="text"
+                  className="input"
+                  placeholder="Third Angle"
+                  onChange={inputThirdAngle}
+                />
+                <button className="btn btn--clear" onClick={checkThirdAngle}>
+                  Check
+                </button>
+              </>
+            ) : (
+              ""
+            )}
+            <h3 className="message">{triangleMessage}</h3>
+            <button
+              className="btn btn--submit"
+              onClick={() => equilateralGenerator()}
+            >
+              {angleString !== "" ? "Play Again" : "Play"}
+            </button>
+          </>
+        ) : (
+          ""
+        )}
+        {currentSelection.value === "6" ? (
+          <>
+            <h3 className="heading">
+              Enter two sides of a triangle and find hypotenuse
+            </h3>
+            <input
+              className="input"
+              placeholder={"Side A"}
+              disabled={angles[0] ? true : false}
+              onBlur={handleInput}
+              onChange={handleChange}
+              value={angles[0] ? angles[0] : temp}
+            />
+            <input
+              className="input"
+              placeholder={"Side B"}
+              disabled={angles[1] ? true : false}
+              onBlur={handleInput}
+              onChange={handleChange}
+              value={angles.length === 0 ? "" : angles[1] ? angles[1] : temp}
+            />
+            <h2 className="message">{triangleMessage}</h2>
+            <button className="btn btn--submit" onClick={calculateHypotenuse}>
+              Calculate Hypotenuse
+            </button>
+            <button className="btn btn--clear" onClick={clear}>
+              Clear
+            </button>
+          </>
+        ) : (
+          ""
+        )}
+        {currentSelection.value === "7" ? (
+          <>
+            <h3 className="heading">
+              Enter base and height of a triangle and find the area.
+            </h3>
+            <input
+              className="input"
+              placeholder={"Base"}
+              disabled={angles[0] ? true : false}
+              onBlur={handleInput}
+              onChange={handleChange}
+              value={angles[0] ? angles[0] : temp}
+            />
+            <input
+              className="input"
+              placeholder={"Height"}
+              disabled={angles[1] ? true : false}
+              onBlur={handleInput}
+              onChange={handleChange}
+              value={angles.length === 0 ? "" : angles[1] ? angles[1] : temp}
+            />
+            <h2 className="message">{triangleMessage}</h2>
+            <button className="btn btn--submit" onClick={calculateArea}>
+              Calculate Area
+            </button>
+            <button className="btn btn--clear" onClick={clear}>
+              Clear
+            </button>
+          </>
+        ) : (
+          ""
+        )}
+      </div>
     </div>
   );
 }
